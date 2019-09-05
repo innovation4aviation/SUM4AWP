@@ -11,6 +11,9 @@
   <component name="FileEditorManager">
     <leaf />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -25,6 +28,7 @@
     <option name="width" value="1455" />
     <option name="height" value="1171" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
@@ -45,6 +49,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$USER_HOME$/summarization" />
   </component>
   <component name="RunDashboard">
@@ -73,7 +78,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="159" y="255" width="1455" height="1171" extended-state="0" />
+    <frame x="298" y="274" width="1455" height="1171" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />

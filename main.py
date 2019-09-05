@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import csv
-from models import lexrank
+from models import lexrank, textrank_keywords
 from utils import *
 
 
@@ -24,6 +24,30 @@ def lexrank4awps(pdf_path, word_embeddings, glove_dim, num_sent):
     ranked_sent = lexrank(raw_sent, word_embeddings=word_embeddings, glove_dim=glove_dim)
     extract_summary = give_summary(ranked_sent, num_sent)
     return extract_summary
+
+
+def textrank(pdf_path, window_size, top_num):
+    """
+    Sent one PDF, return key words.
+    :param pdf_path: the path of PDF.
+    :param window_size: the number of words following a word.
+    :param top_num: the number of top words.
+    :return: a list of Top top_num words
+    """
+    # extract all content in PDF
+    content = extract_pdf_plumber(pdf_path)
+    # get cleaned main body text
+    text = main_body_plumber(content)
+    # sentence segmentation
+    raw_sent = sent_segment(text)
+    # preprocessing
+    processed_sentences = preprocessing(raw_sent)
+    keywords = textrank_keywords(processed_sentences, window_size=window_size, top_num=top_num)
+    # Return a list of keywords
+    list_keywords = []
+    for w in keywords:
+        list_keywords.append(w[0])
+    return list_keywords
 
 
 def write_csv_content(folder_name, csv_name):
@@ -74,5 +98,29 @@ def write_csv_wps(folder_name, csv_name):
             content_plumber = extract_pdf_plumber(pdf)
             agenda_num, agenda_item, title = get_opening(content_plumber)
             summary, action = get_summary_plumber(content_plumber)
-            csv_writer.writerow([wpid[0], agenda_num, title, action.replace(';', '，')])
+            csv_writer.writerow([wpid[0], agenda_num, title, action.replace(';', ',')])
+    print("-" * 30 + "\nReport:\n" + str(num_pdf) + " extracted.\n")
+
+
+def write_csv_keywords(folder_name, csv_name):
+    """
+    Write a csv with header 'WPID','KeywordRank' and 'Keyword'.
+    :param folder_name: name of a folder where working papers are in.
+    :param csv_name: the name of csv you will get.
+    :return: a csv with header 'WPID','KeywordRank' and 'Keyword'.
+    """
+    num_pdf = 0
+    pdfs = load_pdfs(folder_name)
+    with open(csv_name, 'w', encoding='utf-8') as f:
+        csv_writer = csv.writer(f)
+        file_header = ['WPID', 'KeywordRank', 'Keyword']
+        csv_writer.writerow(file_header)
+        for pdf in pdfs:
+            num_pdf += 1
+            wpid = re.findall(r'\d+(?=_en)', pdf)
+            keywords = textrank(pdf, window_size=4, top_num=30)
+            rank = 0
+            for w in keywords:
+                rank += 1
+                csv_writer.writerow([wpid[0], rank, w])
     print("-" * 30 + "\nReport:\n" + str(num_pdf) + " extracted.\n")

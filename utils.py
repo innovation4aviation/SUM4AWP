@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+from collections import OrderedDict
 import glob
 from io import StringIO
 import matplotlib.pyplot as plt
@@ -310,3 +311,51 @@ def get_wordcloud(text):
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     plt.show()
+
+
+def get_vocab(sentences):
+    """Get all tokens"""
+    vocab = OrderedDict()
+    i = 0
+    for sentence in sentences:
+        sentence = sentence.split()
+        for word in sentence:
+            if word not in vocab:
+                vocab[word] = i
+                i += 1
+    return vocab
+
+
+def get_token_pairs(window_size, sentences):
+    """Build token_pairs from windows in sentences"""
+    token_pairs = list()
+    for sentence in sentences:
+        sentence = sentence.split()
+        for i, word in enumerate(sentence):
+            for j in range(i+1, i+window_size):
+                if j >= len(sentence):
+                    break
+                pair = (word, sentence[j])
+                if pair not in token_pairs:
+                    token_pairs.append(pair)
+    return token_pairs
+
+
+def symmetrize(a):
+    return a + a.T - np.diag(a.diagonal())
+
+
+def get_matrix(vocab, token_pairs):
+    """Get normalized matrix"""
+    # Build matrix
+    vocab_size = len(vocab)
+    g = np.zeros((vocab_size, vocab_size), dtype='float')
+    for word1, word2 in token_pairs:
+        i, j = vocab[word1], vocab[word2]
+        g[i][j] = 1
+    # Get Symmeric matrix
+    g = symmetrize(g)
+    # Normalize matrix by column
+    norm = np.sum(g, axis=0)
+    g_norm = np.divide(g, norm, where=norm != 0)  # this is ignore the 0 element in norm
+    return g_norm
