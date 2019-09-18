@@ -67,7 +67,7 @@ def write_csv_content(folder_name, csv_name):
         csv_writer.writerow(file_header)
         for pdf in pdfs:
             num_pdf += 1
-            wpid = re.findall(r'\d+(?=_en)', pdf)
+            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)
             content = extract_pdf_plumber(pdf)
             text = main_body_plumber(content)
             raw_sent = sent_segment(text)
@@ -94,11 +94,14 @@ def write_csv_wps(folder_name, csv_name):
         csv_writer.writerow(file_header)
         for pdf in pdfs:
             num_pdf += 1
-            wpid = re.findall(r'\d+(?=_en)', pdf)
+            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)
             content_plumber = extract_pdf_plumber(pdf)
-            agenda_num, agenda_item, title = get_opening(content_plumber)
-            summary, action = get_summary_plumber(content_plumber)
-            csv_writer.writerow([wpid[0], agenda_num, title, action.replace(';', ',')])
+            try:
+                agenda_num, agenda_item, title = get_opening(content_plumber)
+                summary, action = get_summary_plumber(content_plumber)
+                csv_writer.writerow([wpid[0], agenda_num, title, action.replace(';', ',')])
+            except:
+                csv_writer.writerow([wpid, '', '', action.replace(';', ',')])
     print("-" * 30 + "\nReport:\n" + str(num_pdf) + " extracted.\n")
 
 
@@ -117,10 +120,34 @@ def write_csv_keywords(folder_name, csv_name):
         csv_writer.writerow(file_header)
         for pdf in pdfs:
             num_pdf += 1
-            wpid = re.findall(r'\d+(?=_en)', pdf)
+            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)
             keywords = textrank(pdf, window_size=4, top_num=30)
             rank = 0
             for w in keywords:
                 rank += 1
                 csv_writer.writerow([wpid[0], rank, w])
+    print("-" * 30 + "\nReport:\n" + str(num_pdf) + " extracted.\n")
+
+
+def write_dataset(folder_name, csv_name):
+    """
+    Write a csv with header 'WPID','Summary' and 'Text' (main body).
+    :param folder_name: name of a folder where working papers are in.
+    :param csv_name: the name of csv you will get.
+    :return: a csv with header 'WPID','Summary' and 'Text'.
+    """
+    num_pdf = 0
+    pdfs = load_pdfs(folder_name)
+    with open(csv_name, 'w', encoding='utf-8') as f:
+        csv_writer = csv.writer(f)
+        file_header = ['WPID', 'Summary', 'Text']
+        csv_writer.writerow(file_header)
+        for pdf in pdfs:
+            num_pdf += 1
+            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)
+            content = extract_pdf_plumber(pdf)
+            # get cleaned main body text
+            text = main_body_plumber(content)
+            summary, action = get_summary_plumber(content)
+            csv_writer.writerow([wpid[0], summary.replace(';', ','), text])
     print("-" * 30 + "\nReport:\n" + str(num_pdf) + " extracted.\n")

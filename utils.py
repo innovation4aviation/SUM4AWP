@@ -7,6 +7,7 @@ import glob
 from io import StringIO
 import matplotlib.pyplot as plt
 import networkx as nx
+from nltk import sent_tokenize
 from nltk.corpus import stopwords
 from nltk.tokenize.punkt import PunktParameters, PunktSentenceTokenizer
 import numpy as np
@@ -108,14 +109,14 @@ def main_body_plumber(content_plumber):
                                r'.*\nCORRIGENDUM', '\n1. ', content_without_appen, re.VERBOSE, flags=re.S)
     # remove footnote, header, page number, end,
     main_body = re.sub(r"\n *\n\d +[A-Zhw‘\n].*?(?=A\d+-WP/\d+ )|"  # footnote 
-                       r" *A\d+-WP/\d+ *\n*(- ?\d+ ?-)* *\n*[A-Z]+/\d+(, [A-Z]+/\d+)* *(- ?\d+ ?-)* *\n|"  # header 
+                       r" *A\d+-WP/\d+ *\n*(- ?\d+ ?-)* *\n*[A-Z]+/\d+(, [A-Z]+/\d+)* *(- ?\d{,2} ?-)* *\n|"  # header 
                        r"- ?\d+ ?-|[-–—]+ ?END ?[-–—]+|(— ?){2,}", '\n', content_main_body, re.VERBOSE, flags=re.S)
     # remove outlines and their TITLEs
-    main_body_sent = re.sub(r"- ?\d+ ?-|[-–—]+ ?END ?[-–—]+|(— ?){2,}|\n\d\. +[A-Z,\d’/\n\-– :()]+ |"  # TITLEs
+    main_body_sent = re.sub(r"- ?\d+ ?-|[-–—]+ ?END ?[-–—]+|(— ?){2,}|\n\d\. +[A-Z,\d’'/\n\-– :()]+ |"  # TITLEs
                             r"\n\d\.\d +[A-Za-z0-9 -]{,70}(?=\n)", '\n', main_body, re.VERBOSE, flags=re.S)
     # remove bullets, unicode?
     main_body_rm_bulltes = re.sub(r'\\uf0[a-z0-9]\d|\n\d+(\.\d+)+\.? +|'
-                                  r'\n― |\n[a-z]\)|\n• |\n\d\. ', '\n', main_body_sent, re.VERBOSE, flags=re.S)
+                                  r'\n― |\n[a-z]\)|\n• |\n\d\. |†', '\n', main_body_sent, re.VERBOSE, flags=re.S)
     # get clean text
     text_main_body = ' '.join(main_body_rm_bulltes.split())
     return text_main_body.replace(';', ',')  # use .replace(';', '.') if you do not like long sentences with ';'
@@ -178,12 +179,17 @@ def get_main_body(content):
 
 def sent_segment(text):
     """Sentence segmentation avoiding the abbreviation."""
-    punkt_param = PunktParameters()
-    abbreviation = ['i.e', 'e.g', 'U.S', 'Dr', 'No', 'etc', 'Note', 'Vol', 'Ref', 'para', 'NO']
-    punkt_param.abbrev_types = set(abbreviation)
-    tokenizer = PunktSentenceTokenizer(punkt_param)
-    raw_sentences = tokenizer.tokenize(text)
-    return raw_sentences
+    sentences = sent_tokenize(text)
+    raw_sentences = ""
+    abbreviation = ['i.e.', '(i.e.', 'e.g.', '(e.g.', 'etc.)', 'et.', '(Note.',
+                    'No.', 'Nos.', 'NO.', 'WMO-No.', '(WMO-No.', '3/WMO-No.',
+                    'Ref.', '(Ref.', '(ref.', 'para.', 'Vol.', 'Doc.', '(Doc.']
+    for sent in sentences:
+        if sent.split(" ")[-1] in abbreviation:
+            raw_sentences += sent + ' '
+        else:
+            raw_sentences += sent + '\n'
+    return raw_sentences.split('\n')[:-1]
 
 
 def remove_stopwords(sen):
