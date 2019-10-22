@@ -67,7 +67,8 @@ def write_csv_content(folder_name, csv_name):
         csv_writer.writerow(file_header)
         for pdf in pdfs:
             num_pdf += 1
-            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)
+            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)  # A39, A40
+            # wpid = re.findall(r'(?<=a3\d_wp).*(?=_en)', pdf)  # A35-A38
             content = extract_pdf_plumber(pdf)
             text = main_body_plumber(content)
             raw_sent = sent_segment(text)
@@ -94,7 +95,8 @@ def write_csv_wps(folder_name, csv_name):
         csv_writer.writerow(file_header)
         for pdf in pdfs:
             num_pdf += 1
-            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)
+            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)  # A39, A40
+            # wpid = re.findall(r'(?<=a3\d_wp).*(?=_en)', pdf)  # A35-A38
             content_plumber = extract_pdf_plumber(pdf)
             try:
                 agenda_num, agenda_item, title = get_opening(content_plumber)
@@ -120,7 +122,8 @@ def write_csv_keywords(folder_name, csv_name):
         csv_writer.writerow(file_header)
         for pdf in pdfs:
             num_pdf += 1
-            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)
+            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)  # A39, A40
+            # wpid = re.findall(r'(?<=a3\d_wp).*(?=_en)', pdf)  # A35-A38
             keywords = textrank(pdf, window_size=4, top_num=30)
             rank = 0
             for w in keywords:
@@ -144,7 +147,8 @@ def write_dataset(folder_name, csv_name):
         csv_writer.writerow(file_header)
         for pdf in pdfs:
             num_pdf += 1
-            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)
+            wpid = re.findall(r'(?<=wp_).*(?=_en)', pdf)  # A39, A40
+            # wpid = re.findall(r'(?<=a3\d_wp).*(?=_en)', pdf)  # A35-A38
             content = extract_pdf_plumber(pdf)
             # get cleaned main body text
             text = main_body_plumber(content)

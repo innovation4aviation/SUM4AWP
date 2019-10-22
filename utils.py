@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from nltk import sent_tokenize
 from nltk.corpus import stopwords
-from nltk.tokenize.punkt import PunktParameters, PunktSentenceTokenizer
+# from nltk.tokenize.punkt import PunktParameters, PunktSentenceTokenizer
 import numpy as np
 import pandas as pd
 # PDFMiner (https://github.com/pdfminer/pdfminer.six)
