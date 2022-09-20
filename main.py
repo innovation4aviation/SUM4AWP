@@ -25,6 +25,59 @@ def lexrank4awps(pdf_path, word_embeddings, glove_dim, num_sent):
     extract_summary = give_summary(ranked_sent, num_sent)
     return extract_summary
 
+def lexranksentences(pdf_path, word_embeddings, glove_dim, num_sent):
+    """
+    Sent one PDF, return a summary.
+    :param pdf_path: the path of PDF.
+    :param word_embeddings: words and their vectors.
+    :param glove_dim: dimension of a word's vector.
+    :param num_sent: the number of sentences you want as a summary.
+    :return: a summary
+    """
+    # extract all content in PDF
+    content = extract_pdf_plumber(pdf_path)
+    # get cleaned main body text
+    text = main_body_plumber(content)
+    # sentence segmentation
+    raw_sent = sent_segment(text)
+    ranked_sent = lexrank(raw_sent, word_embeddings=word_embeddings, glove_dim=glove_dim)
+    return [list(i)[1] for i in ranked_sent[:num_sent]]
+
+def getalldata(pdf_path, word_embeddings, glove_dim, num_sent,window_size, top_num):
+    """
+    Sent one PDF, return a list of senteces and keywords and opening info.
+    :param pdf_path: the path of PDF.
+    :param word_embeddings: words and their vectors.
+    :param glove_dim: dimension of a word's vector.
+    :param num_sent: the number of sentences you want as a summary.
+    :param window_size: the number of words following a word.
+    :param top_num: the number of top words.
+    :return: a dict
+    """
+    # extract all content in PDF
+    content = extract_pdf_plumber(pdf_path)
+    # get cleaned main body text
+    text = main_body_plumber(content)
+    # sentence segmentation
+    raw_sent = sent_segment(text)
+    ranked_sent = lexrank(raw_sent, word_embeddings=word_embeddings, glove_dim=glove_dim)
+    sentences=[list(i)[1] for i in ranked_sent[:num_sent]]
+    
+    # textrank part
+    processed_sentences = preprocessing(raw_sent)
+    keywords = textrank_keywords(processed_sentences, window_size=window_size, top_num=top_num)
+    # Return a list of keywords
+    list_keywords = []
+    for w in keywords:
+        list_keywords.append(w[0])
+    
+    #opening
+    opening=get_opening(content)
+    
+    #summary
+    summary=get_summary_plumber(content)
+    
+    return {"sentences":sentences,"keywords":list_keywords,"opening":list(opening),"summary":list(summary)}
 
 def textrank(pdf_path, window_size, top_num):
     """

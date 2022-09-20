@@ -11,6 +11,9 @@ from nltk import sent_tokenize
 from nltk.corpus import stopwords
 # from nltk.tokenize.punkt import PunktParameters, PunktSentenceTokenizer
 import numpy as np
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import pandas as pd
 # PDFMiner (https://github.com/pdfminer/pdfminer.six)
 from pdfminer.converter import TextConverter
