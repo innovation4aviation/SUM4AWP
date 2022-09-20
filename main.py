@@ -27,12 +27,12 @@ def lexrank4awps(pdf_path, word_embeddings, glove_dim, num_sent):
 
 def lexranksentences(pdf_path, word_embeddings, glove_dim, num_sent):
     """
-    Sent one PDF, return a summary.
+    Sent one PDF, return a list of sentences.
     :param pdf_path: the path of PDF.
     :param word_embeddings: words and their vectors.
     :param glove_dim: dimension of a word's vector.
-    :param num_sent: the number of sentences you want as a summary.
-    :return: a summary
+    :param num_sent: the number of sentences you want.
+    :return: a list of sentences
     """
     # extract all content in PDF
     content = extract_pdf_plumber(pdf_path)
